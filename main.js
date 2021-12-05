@@ -3,7 +3,7 @@ const toDoInput = document.querySelector('#todo-input');
 const toDoBtn = document.querySelector('.todo-btn');
 const toDoList = document.querySelector('.todo-list');
 const label = document.querySelector('.dropdown-label');
-// console.log(label)
+
 // listeners
 toDoBtn.addEventListener('click', addToDo);
 toDoList.addEventListener('click', deleteAndCheck);
@@ -53,7 +53,7 @@ class Dropdown {
         this.$el.querySelector('.dropdown-label').innerHTML = `${this.items[0].label}<i class="fas fa-caret-down"></i>`;
         // console.log(this.$el)
         this.$el.addEventListener('click', event => {
-            console.log(event.target)
+            // console.log(event.target)
             if (event.target.classList.contains('dropdown-label')) {
                 if (this.$el.classList.contains('open')) {
                     this.close();
@@ -61,8 +61,29 @@ class Dropdown {
                     this.open();
                 }
             } else if (event.target.tagName.toLowerCase() === 'li') {
-                this.select(event.target.dataset.id);
-                console.log(event.target.dataset.id)
+                const todos = Array.from(toDoList.children);
+                const selected = event.target.dataset.id;
+                this.select(selected);
+                // console.log(event.target.dataset.id)
+               if (selected === 'completed') {
+                   todos.forEach(item => {
+                       if (item.classList.contains('completed')) {
+                           item.style.display = 'flex';
+                       } else {
+                        item.style.display = 'none';
+                       }
+                   })
+               } else if (selected === 'uncompleted') {
+                todos.forEach(item => {
+                    if (item.classList.contains('completed')) {
+                        item.style.display = 'none';
+                    } else {
+                     item.style.display = 'flex';
+                    }
+                })
+               } else {
+                   todos.forEach(item => item.style.display = 'flex')
+               }
             }
         });
         const itemsHTML = this.items.map(i => {
@@ -91,6 +112,6 @@ const dropdown = new Dropdown('#dropdown', {
     items: [
         {label: 'Все', id: 'all'},
         {label: 'Выполненные', id: 'completed'},
-        {label: 'Проваленные', id: 'uncompleted'}
+        {label: 'Незавершенные', id: 'uncompleted'}
     ]
 });
