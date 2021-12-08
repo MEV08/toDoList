@@ -5,27 +5,33 @@ const toDoList = document.querySelector('.todo-list');
 const label = document.querySelector('.dropdown-label');
 
 // listeners
+document.addEventListener('DOMContentLoaded', getTodos);
 toDoBtn.addEventListener('click', addToDo);
 toDoList.addEventListener('click', deleteAndCheck);
+
 // functions
 function addToDo(e) {
     e.preventDefault();
-    const toDoDiv = document.createElement('div');
-    toDoDiv.classList.add('todo');
-    const newToDo = document.createElement('li');
-    newToDo.innerText = toDoInput.value;
-    newToDo.classList.add('todo-item');
-    toDoDiv.appendChild(newToDo);
-    const completedBtn = document.createElement('button');
-    completedBtn.innerHTML = '<i class="fas fa-check"></i>';
-    completedBtn.classList.add('complete-btn');
-    toDoDiv.appendChild(completedBtn)
-    const deleteBtn = document.createElement('button');
-    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteBtn.classList.add('delete-btn');
-    toDoDiv.appendChild(deleteBtn);
-    toDoList.appendChild(toDoDiv);
-    toDoInput.value = '';
+   
+    if (toDoInput.value !== '') {
+        const toDoDiv = document.createElement('div');
+        toDoDiv.classList.add('todo');
+        const newToDo = document.createElement('li');
+        newToDo.innerText = toDoInput.value;
+        newToDo.classList.add('todo-item');
+        toDoDiv.appendChild(newToDo);
+        saveLocalTodos(toDoInput.value);
+        const completedBtn = document.createElement('button');
+        completedBtn.innerHTML = '<i class="fas fa-check"></i>';
+        completedBtn.classList.add('complete-btn');
+        toDoDiv.appendChild(completedBtn)
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.classList.add('delete-btn');
+        toDoDiv.appendChild(deleteBtn);
+        toDoList.appendChild(toDoDiv);
+        toDoInput.value = '';
+    }
 }
 function deleteAndCheck(e) {
     e.preventDefault();
@@ -33,17 +39,63 @@ function deleteAndCheck(e) {
     if (item.classList[0] === 'delete-btn') {
         const todo = item.parentElement;
         todo.classList.add('fall');
+        
         todo.addEventListener('transitionend', function() {
             todo.remove();
         });
+        removeLocalTodos(todo);
     }
     if (item.classList[0] === 'complete-btn') {
         const todo = item.parentElement;
         todo.classList.toggle('completed');
     }
 }
-function filterToDo(e) {
-    
+function saveLocalTodos(todo) {
+    let todos;
+    if (localStorage.getItem('todos') === null) {
+        todos = [];
+    } else {
+        todos = JSON.parse(localStorage.getItem('todos'));
+    }
+
+    todos.push(todo);
+    localStorage.setItem('todos', JSON.stringify(todos));
+}
+function getTodos() {
+    let todos;
+    if (localStorage.getItem('todos') === null) {
+        todos = [];
+    } else {
+        todos = JSON.parse(localStorage.getItem('todos'));
+    }
+    todos.forEach(function(todo) {
+        const toDoDiv = document.createElement('div');
+        toDoDiv.classList.add('todo');
+        const newToDo = document.createElement('li');
+        newToDo.innerText = todo;
+        newToDo.classList.add('todo-item');
+        toDoDiv.appendChild(newToDo);
+        const completedBtn = document.createElement('button');
+        completedBtn.innerHTML = '<i class="fas fa-check"></i>';
+        completedBtn.classList.add('complete-btn');
+        toDoDiv.appendChild(completedBtn)
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.classList.add('delete-btn');
+        toDoDiv.appendChild(deleteBtn);
+        toDoList.appendChild(toDoDiv);
+    });
+}
+function removeLocalTodos(todo) {
+    let todos;
+    if (localStorage.getItem('todos') === null) {
+        todos = [];
+    } else {
+        todos = JSON.parse(localStorage.getItem('todos'));
+    }
+    const todoIndex = todo.children[0].innerText;
+    todos.splice(todos.indexOf(todoIndex), 1);
+    localStorage.setItem('todos', JSON.stringify(todos));
 }
 // dropdown constructor
 class Dropdown {
@@ -95,7 +147,6 @@ class Dropdown {
         const item = this.items.find(i => i.id === id);
         this.$el.querySelector('.dropdown-label').innerHTML = `${item.label}<i class="fas fa-caret-down"></i>`;
         this.close();
-        // console.log(item)
     };
     clickThrough(e) {
         console.log(e)
